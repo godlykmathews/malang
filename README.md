@@ -14,7 +14,7 @@ It’s not just a language. It’s a *concept*. A statement. A joke that spirale
 - **Manglish to Go Compilation** – Because writing Malayalam in English letters is an art.  
 - **Code Generation** – Magic! and go for the most part. 
 - **Execution** – You write Manglish, Malang does the rest. Theoretically.  
-- **Serious Yet Not Serious** – It works, but should it? Debatable.  \
+- **Serious Yet Not Serious** – It works, but should it? Debatable.
 
 ## Installation
 Since you clearly have excellent taste, getting started is easy:
