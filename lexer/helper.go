@@ -8,6 +8,10 @@ func IsLetter(ch rune) bool {
 	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
 }
 
-func IsDigit(ch rune) bool {
-	return ch >= '0' && ch <= '9'
+func IsDigit(char byte) bool {
+	return char >= '0' && char <= '9'
+}
+
+func IsAlpha(char byte) bool {
+	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')
 }

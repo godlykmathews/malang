@@ -1,57 +1,57 @@
 package ast
 
-// Node is the interface that all AST nodes must implement.
-type Node interface {
-	// String returns a string representation of the node.
-	String() string
+type ASTNode interface{}
+
+type Program struct {
+	Statements []ASTNode
 }
 
-// SayNode represents a say statement.
-type SayNode struct {
-	// Say node is like the print statement in Python.
-	Message string // The message to say. E.g. "Hello, world!"
-	// MessageType string // The type of message to say. E.g. "string" // TODO: Implement this.
+type ParayuStatement struct {
+	Expression ASTNode
 }
 
-type VariableDeclarationNode struct {
+type KelkStatement struct {
+	Identifier string // Variable to store input
+}
+
+type AssignmentStatement struct {
 	Identifier string
-	Value      Node // Expression for the initial value
+	Expression ASTNode
 }
 
-type VariableAssignmentNode struct {
+type IfStatement struct {
+	Condition ASTNode
+	Body      []ASTNode
+	ElseBody  []ASTNode // Optional else block
+}
+
+type WhileStatement struct {
+	Condition ASTNode
+	Body      []ASTNode
+}
+
+type ForStatement struct {
 	Identifier string
-	Value      Node
+	Start      ASTNode // Start of range
+	End        ASTNode // End of range
+	Body       []ASTNode
 }
 
-type IdentifierNode struct { // To represent a variable being used
-	Name string
-}
-
-// Expression Node Interface
-type ExpressionNode interface {
-	Node
-	isExpression()
-}
-
-// Concrete Expression Node Types
-type StringLiteralNode struct {
-	Value string
-}
-
-func (StringLiteralNode) isExpression() {}
-
-type NumberLiteralNode struct {
-	Value string
-}
-
-func (NumberLiteralNode) isExpression() {}
-
-func (IdentifierNode) isExpression() {} // Variables can be expressions
-
-type BinaryOpNode struct {
-	Left     Node
+type BinaryExpression struct {
+	Left     ASTNode
 	Operator string
-	Right    Node
+	Right    ASTNode
 }
 
-func (BinaryOpNode) isExpression() {}
+type StringLiteral struct {
+	Value string
+}
+
+type Identifier struct {
+	Name string
+	Type string // Store the inferred type: "string" or "int" (or other types later)
+}
+
+type IntegerLiteral struct {
+	Value int
+}

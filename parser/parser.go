@@ -2,76 +2,190 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/Rohith04MVK/malang/ast"
 	"github.com/Rohith04MVK/malang/lexer"
 )
 
-func Parse(tokens []lexer.Token) ([]ast.Node, error) {
-	// Example (very simplified and incomplete):
-	nodes := []ast.Node{}
-	i := 0
-	for i < len(tokens)-1 && tokens[i].Type != lexer.TokenTypeEOF {
-		switch tokens[i].Type {
-		case lexer.TokenTypeKeyword:
-			switch tokens[i].Value {
-			case "let": // Parse variable declaration
-				if i+1 < len(tokens) && tokens[i+1].Type == lexer.TokenTypeIdentifier &&
-					i+2 < len(tokens) && tokens[i+2].Type == lexer.TokenTypeEquals {
-					identifier := tokens[i+1].Value
-					// Parse the expression after the equals sign
-					expr, steps, err := parseExpression(tokens[i+3:])
-					if err != nil {
-						return nil, err
-					}
-					nodes = append(nodes, ast.VariableDeclarationNode{Identifier: identifier, Value: expr})
-					i += 3 + steps
-				} else {
-					return nil, fmt.Errorf("syntax error in variable declaration at line %d", tokens[i].Line)
-				}
-
-			case "parayada":
-				if i+1 < len(tokens) && tokens[i+1].Type == lexer.TokenTypeString || tokens[i+1].Type == lexer.TokenTypeIdentifier || tokens[i+1].Type == lexer.TokenTypeNumber {
-					nodes = append(nodes, ast.SayNode{Message: tokens[i+1].Value})
-					i += 2
-				} else if i+1 < len(tokens) && tokens[i+1].Type == lexer.TokenTypeOperator && tokens[i+1].Value == "+" {
-					// Handle string concatenation (very basic)
-					if i+2 < len(tokens) && tokens[i+2].Type == lexer.TokenTypeIdentifier {
-						nodes = append(nodes, ast.SayNode{Message: fmt.Sprintf("\"\" + %s", tokens[i+2].Value)}) // Placeholder
-						i += 3
-					} else {
-						return nil, fmt.Errorf("syntax error in parayada statement at line %d", tokens[i].Line)
-					}
-				} else {
-					return nil, fmt.Errorf("syntax error in parayada statement at line %d", tokens[i].Line)
-				}
-			default:
-				fmt.Printf("Unhandled keyword: %s\n", tokens[i].Value)
-				i++
-			}
-		case lexer.TokenTypeNewline:
-			i++
-		default:
-			fmt.Printf("Unexpected token: %+v\n", tokens[i])
-			i++
-		}
-	}
-	return nodes, nil
+type Parser struct {
+	tokens []lexer.Token
+	pos    int
 }
 
-func parseExpression(tokens []lexer.Token) (ast.Node, int, error) {
-	if len(tokens) == 0 {
-		return nil, 0, fmt.Errorf("unexpected end of expression")
+func NewParser(tokens []lexer.Token) *Parser {
+	return &Parser{tokens: tokens, pos: 0}
+}
+
+func (p *Parser) peek() lexer.Token {
+	if p.pos >= len(p.tokens) {
+		return lexer.Token{Type: lexer.TokEOF}
+	}
+	return p.tokens[p.pos]
+}
+
+func (p *Parser) consume(expectedType string) lexer.Token {
+	token := p.peek()
+	if token.Type != expectedType {
+		panic(fmt.Sprintf("Expected token type %s, got %s at line %d, col %d", expectedType, token.Type, token.Line, token.Col))
+	}
+	p.pos++
+	return token
+}
+
+func (p *Parser) Parse() ast.Program {
+	program := ast.Program{Statements: []ast.ASTNode{}}
+	for p.peek().Type != lexer.TokEOF {
+		program.Statements = append(program.Statements, p.parseStatement())
+	}
+	return program
+}
+
+func (p *Parser) parseStatement() ast.ASTNode {
+	switch p.peek().Type {
+	case lexer.TokParayu:
+		return p.parseParayuStatement()
+	case lexer.TokKelk:
+		return p.parseKelkStatement()
+	case lexer.TokIdentifier: // Could be assignment or part of expression
+		if p.peekNext().Type == lexer.TokOperator && p.peekNext().Value == "=" {
+			return p.parseAssignmentStatement()
+		}
+		fallthrough // otherwise parse as an expression statement (for now, just expressions)
+	case lexer.TokAadhyamayi:
+		return p.parseIfStatement()
+	case lexer.TokEllamSheriyano:
+		return p.parseWhileStatement()
+	case lexer.TokOnninuMumbu:
+		return p.parseForStatement()
+	default:
+		return p.parseExpression()
+	}
+}
+
+func (p *Parser) parseParayuStatement() ast.ASTNode {
+	p.consume(lexer.TokParayu)
+	p.consume(lexer.TokLParen)
+	expression := p.parseExpression()
+	p.consume(lexer.TokRParen)
+	return ast.ParayuStatement{Expression: expression}
+}
+
+func (p *Parser) parseKelkStatement() ast.ASTNode {
+	p.consume(lexer.TokKelk)
+	p.consume(lexer.TokLParen)
+	identifier := p.consume(lexer.TokIdentifier).Value
+	p.consume(lexer.TokRParen)
+
+	return ast.KelkStatement{Identifier: identifier}
+}
+
+func (p *Parser) parseAssignmentStatement() ast.ASTNode {
+	identifier := p.consume(lexer.TokIdentifier).Value
+	p.consume(lexer.TokOperator) // We already know it's an '='
+	expression := p.parseExpression()
+	return ast.AssignmentStatement{Identifier: identifier, Expression: expression}
+}
+
+func (p *Parser) parseIfStatement() ast.ASTNode {
+	p.consume(lexer.TokAadhyamayi)
+	p.consume(lexer.TokLParen)
+	condition := p.parseExpression()
+	p.consume(lexer.TokRParen)
+	p.consume(lexer.TokAthengil)
+	p.consume(lexer.TokLBrace)
+	body := p.parseBlock()
+	p.consume(lexer.TokRBrace)
+
+	var elseBody []ast.ASTNode
+	if p.peek().Type == lexer.TokIlla {
+		p.consume(lexer.TokIlla)
+		p.consume(lexer.TokLBrace)
+		elseBody = p.parseBlock()
+		p.consume(lexer.TokRBrace)
 	}
 
-	switch tokens[0].Type {
-	case lexer.TokenTypeString:
-		return ast.StringLiteralNode{Value: tokens[0].Value}, 1, nil
-	case lexer.TokenTypeNumber:
-		return ast.NumberLiteralNode{Value: tokens[0].Value}, 1, nil
-	case lexer.TokenTypeIdentifier:
-		return ast.IdentifierNode{Name: tokens[0].Value}, 1, nil
-	default:
-		return nil, 0, fmt.Errorf("unexpected token in expression: %+v", tokens[0])
+	return ast.IfStatement{Condition: condition, Body: body, ElseBody: elseBody}
+}
+
+func (p *Parser) parseWhileStatement() ast.ASTNode {
+	p.consume(lexer.TokEllamSheriyano)
+	p.consume(lexer.TokLParen)
+	condition := p.parseExpression()
+	p.consume(lexer.TokRParen)
+	p.consume(lexer.TokAthengil)
+	p.consume(lexer.TokLBrace)
+	body := p.parseBlock()
+	p.consume(lexer.TokRBrace)
+
+	return ast.WhileStatement{Condition: condition, Body: body}
+}
+
+func (p *Parser) parseForStatement() ast.ASTNode {
+	p.consume(lexer.TokOnninuMumbu)
+	identifier := p.consume(lexer.TokIdentifier).Value
+	p.consume(lexer.TokEdukk)
+	p.consume(lexer.TokLParen)
+	start := p.parseExpression()
+	p.consume(lexer.TokRange)
+	end := p.parseExpression()
+	p.consume(lexer.TokRParen)
+
+	p.consume(lexer.TokLBrace)
+	body := p.parseBlock()
+	p.consume(lexer.TokRBrace)
+	return ast.ForStatement{Identifier: identifier, Start: start, End: end, Body: body}
+}
+
+func (p *Parser) parseExpression() ast.ASTNode {
+	return p.parseComparison() // Start with higher precedence
+}
+
+func (p *Parser) parseComparison() ast.ASTNode {
+	left := p.parseTerm()
+	for p.peek().Type == lexer.TokOperator && (p.peek().Value == "==" || p.peek().Value == "<") {
+		operator := p.consume(lexer.TokOperator).Value
+		right := p.parseTerm()
+		left = ast.BinaryExpression{Left: left, Operator: operator, Right: right}
 	}
+	return left
+}
+
+func (p *Parser) parseTerm() ast.ASTNode {
+	left := p.parseFactor()
+
+	for p.peek().Type == lexer.TokOperator && (p.peek().Value == "+") {
+		operator := p.consume(lexer.TokOperator).Value
+		right := p.parseFactor()
+		left = ast.BinaryExpression{Left: left, Operator: operator, Right: right}
+	}
+	return left
+}
+
+func (p *Parser) parseFactor() ast.ASTNode {
+
+	switch p.peek().Type {
+	case lexer.TokInteger:
+		value, _ := strconv.Atoi(p.consume(lexer.TokInteger).Value)
+		return ast.IntegerLiteral{Value: value}
+	case lexer.TokString:
+		return ast.StringLiteral{Value: p.consume(lexer.TokString).Value}
+	case lexer.TokIdentifier:
+		name := p.consume(lexer.TokIdentifier).Value
+		return ast.Identifier{Name: name, Type: ""} // Initialize Type to empty string
+	case lexer.TokLParen: // Handle parenthesized expressions.
+		p.consume(lexer.TokLParen)
+		expression := p.parseExpression()
+		p.consume(lexer.TokRParen)
+		return expression
+	default:
+		panic(fmt.Sprintf("Unexpected token in expression: %s", p.peek().Type))
+	}
+}
+
+func (p *Parser) peekNext() lexer.Token {
+	if p.pos+1 >= len(p.tokens) {
+		return lexer.Token{Type: lexer.TokEOF}
+	}
+	return p.tokens[p.pos+1]
 }

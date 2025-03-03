@@ -1,0 +1,22 @@
+parayu("Hello, ninte per entha?")
+kelk(name)
+
+aadhyamayi (name == "Rohith") athengil {
+    parayu("Eda, ithu ninte thante language alle!")
+} illa {
+    parayu("Nannayittanu! Sugamano, " + name + "?")
+}
+
+count = 0
+ellam_sheriyano (count < 5) athengil {
+    parayu("Count: " + count)
+    count = count + 1
+}
+
+onninu_mumbu i edukk (1..5) {
+    parayu("Value: " + i)
+}
+
+// Comment, nokulla
+x = 10 + 5
+parayu("x = " + x)

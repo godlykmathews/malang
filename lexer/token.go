@@ -1,22 +1,32 @@
 package lexer
 
-type TokenType int
-
-const (
-	TokenTypeKeyword TokenType = iota
-	TokenTypeIdentifier
-	TokenTypeString
-	TokenTypeEquals
-	TokenTypeNumber
-	TokenTypeOperator
-	TokenTypeColon
-	TokenTypeNewline
-	TokenTypeEOF
-)
-
+// Token represents a lexical token
 type Token struct {
-	Type   TokenType
-	Value  string
-	Line   int
-	Column int
+	Type  string
+	Value string
+	Line  int
+	Col   int
 }
+
+// Constants for token types
+const (
+	TokParayu         = "PARAYU"
+	TokKelk           = "KELK"
+	TokAadhyamayi     = "AADHYAMAYI"
+	TokAthengil       = "ATHENGIL"
+	TokIlla           = "ILLA"
+	TokEllamSheriyano = "ELLAM_SHERIYANO"
+	TokOnninuMumbu    = "ONNINU_MUMBU"
+	TokEdukk          = "EDUKK"
+	TokString         = "STRING"
+	TokIdentifier     = "IDENTIFIER"
+	TokInteger        = "INTEGER"
+	TokOperator       = "OPERATOR"
+	TokLParen         = "LPAREN"
+	TokRParen         = "RPAREN"
+	TokLBrace         = "LBRACE"
+	TokRBrace         = "RBRACE"
+	TokRange          = "RANGE"
+	TokComma          = "COMMA"
+	TokEOF            = "EOF"
+)
