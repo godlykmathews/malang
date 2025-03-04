@@ -1,22 +1,22 @@
 parayu("Hello, ninte per entha?")
 kelk(name)
 
-aadhyamayi (name == "Rohith") athengil {
+ith_sheriyano (name == "Rohith") enkil {
     parayu("Eda, ithu ninte thante language alle!")
-} illa {
+} alle {
     parayu("Nannayittanu! Sugamano, " + name + "?")
 }
 
-count = 0
-ellam_sheriyano (count < 5) athengil {
-    parayu("Count: " + count)
-    count = count + 1
+ennam = 0
+ellam_sheriyano (ennam < 5) enkil {
+    parayu("Count: " + ennam)
+    ennam = ennam + 1
 }
 
-onninu_mumbu i edukk (1..5) {
+oron_ayi i edukk (1..5) {
     parayu("Value: " + i)
 }
 
 // Comment, nokulla
-x = (10 - 5) * 2
-parayu("x = " + x)
+entho = (10 - 5) * 2
+parayu("x = " + entho)

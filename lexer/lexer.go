@@ -13,11 +13,11 @@ func Lex(input string) []Token {
 	keywords := map[string]string{
 		"parayu":          TokParayu,
 		"kelk":            TokKelk,
-		"aadhyamayi":      TokAadhyamayi,
-		"athengil":        TokAthengil,
-		"illa":            TokIlla,
+		"ith_sheriyano":   TokAadhyamayi,
+		"enkil":           TokAthengil,
+		"alle":            TokIlla,
 		"ellam_sheriyano": TokEllamSheriyano,
-		"onninu_mumbu":    TokOnninuMumbu,
+		"oron_ayi":        TokOnninuMumbu,
 		"edukk":           TokEdukk,
 	}
 
