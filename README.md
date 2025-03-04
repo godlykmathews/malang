@@ -1,7 +1,10 @@
 # Malang Compiler  
 **"They were teaching me compiler design, so a compiler is what I designed."**  
+<p align="center">
+<img src="./media/logo.png" height=300 width=300>
+</p>
 
-## Malang: A Compiler Born Out of Stubbornness  
+## What is Malang?
 Malang is... well, let's just say it's a *unique* programming language. Born out of sheer defiance and an unwavering commitment to proving a point, Malang is my way of showing that I *did* in fact pay attention in my compiler design course—whether my professor appreciates the outcome or not.  
 
 Will Malang change the world? No.  
@@ -9,6 +12,8 @@ Will it revolutionize software development? Absolutely not.
 Did it make me question my life choices? Almost certainly.  
 
 It’s not just a language. It's a *concept*. A statement. A joke that spiraled completely out of control. But hey, **I** made a compiler!  
+
+Malang is written _Manglish_, Malayalam written in English script—because why not? If you've ever wanted to write code that looks like a casual WhatsApp conversation between two Malayalis, Malang is here to enable that madness.
 
 ## Features  
 - **Manglish to Go Compilation** - Because writing Malayalam in English letters is an art.  
