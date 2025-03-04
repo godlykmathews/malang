@@ -7,19 +7,19 @@ import (
 
 func operatorPrecedence(operator string) int {
 	switch operator {
-	case "==", "<": // Comparison operators
-		return 1
-	case "+": // Addition
+	case "*", "/": // Multiplication and division have highest precedence
+		return 3
+	case "+", "-": // Addition and subtraction
 		return 2
-	// TODO: Add more operators and their precedence
+	case "==", "<": // Comparison
+		return 1
 	default:
 		panic(fmt.Sprintf("Unknown operator: %s", operator))
 	}
 }
-
 func isLeftAssociative(operator string) bool {
 	switch operator {
-	case "+", "==", "<": //all our operators are left associative
+	case "+", "-", "*", "/", "==", "<": //all our operators are left associative
 		return true
 	default:
 		return false //or panic if an unknown operator is encountered

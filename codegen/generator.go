@@ -8,6 +8,7 @@ import (
 	"github.com/Rohith04MVK/malang/ast"
 )
 
+// GenerateCode generates Go code from the AST.
 func GenerateCode(program ast.Program) string {
 	var code strings.Builder
 
@@ -57,40 +58,38 @@ func GenerateCode(program ast.Program) string {
 func generateStatementCode(statement ast.ASTNode, declaredVars map[string]string) string {
 	switch s := statement.(type) {
 	case ast.ParayuStatement:
-		return fmt.Sprintf("fmt.Println(%s)\n", generateExpressionCodeForParayu(s.Expression, declaredVars)) // Pass declaredVars
+		return fmt.Sprintf("\tfmt.Println(%s)\n", generateExpressionCodeForParayu(s.Expression, declaredVars))
 	case ast.KelkStatement:
 		if _, declared := declaredVars[s.Identifier]; declared {
 			panic(fmt.Sprintf("Variable '%s' already declared", s.Identifier))
 		}
-		declaredVars[s.Identifier] = "string" // kelk always results in a string
-		return fmt.Sprintf("var %s string\nfmt.Scanln(&%s)\n", s.Identifier, s.Identifier)
+		declaredVars[s.Identifier] = "string"
+		return fmt.Sprintf("\tvar %s string\n\tfmt.Scanln(&%s)\n", s.Identifier, s.Identifier)
 	case ast.AssignmentStatement:
 		if _, declared := declaredVars[s.Identifier]; !declared {
-			// Infer type based on the assigned expression
 			inferredType := inferType(s.Expression, declaredVars)
 			declaredVars[s.Identifier] = inferredType
-			return fmt.Sprintf("%s := %s\n", s.Identifier, generateExpressionCode(s.Expression, 0, declaredVars)) // Regular
+			return fmt.Sprintf("\t%s := %s\n", s.Identifier, generateExpressionCode(s.Expression, 0, declaredVars))
 		} else {
-
-			return fmt.Sprintf("%s = %s\n", s.Identifier, generateExpressionCode(s.Expression, 0, declaredVars)) // Regular
+			return fmt.Sprintf("\t%s = %s\n", s.Identifier, generateExpressionCode(s.Expression, 0, declaredVars))
 		}
 	case ast.IfStatement:
-		code := fmt.Sprintf("if %s {\n%s}", generateExpressionCode(s.Condition, 0, declaredVars), generateBlockCode(s.Body, declaredVars))
+		code := fmt.Sprintf("\tif %s {\n%s\t}", generateExpressionCode(s.Condition, 0, declaredVars), generateBlockCode(s.Body, declaredVars))
 		if s.ElseBody != nil {
-			code += fmt.Sprintf("else {\n%s}\n", generateBlockCode(s.ElseBody, declaredVars))
+			code += fmt.Sprintf(" else {\n%s\t}\n", generateBlockCode(s.ElseBody, declaredVars))
 		}
 		return code
 	case ast.WhileStatement:
-		return fmt.Sprintf("for %s {\n%s}\n", generateExpressionCode(s.Condition, 0, declaredVars), generateBlockCode(s.Body, declaredVars))
+		return fmt.Sprintf("\tfor %s {\n%s\t}\n", generateExpressionCode(s.Condition, 0, declaredVars), generateBlockCode(s.Body, declaredVars))
 	case ast.ForStatement:
 		loopDeclaredVars := make(map[string]string)
 		for k, v := range declaredVars {
 			loopDeclaredVars[k] = v
 		}
+		loopDeclaredVars[s.Identifier] = "int"
 		startCode := generateExpressionCode(s.Start, 0, declaredVars)
 		endCode := generateExpressionCode(s.End, 0, declaredVars)
-		loopDeclaredVars[s.Identifier] = "int" //for loop var is int.
-		return fmt.Sprintf("for %s := %s; %s <= %s; %s++ {\n%s}\n", s.Identifier, startCode, s.Identifier, endCode, s.Identifier, generateBlockCode(s.Body, loopDeclaredVars))
+		return fmt.Sprintf("\tfor %s := %s; %s <= %s; %s++ {\n%s\t}\n", s.Identifier, startCode, s.Identifier, endCode, s.Identifier, generateBlockCode(s.Body, loopDeclaredVars))
 	default:
 		panic(fmt.Sprintf("Unexpected statement type: %T", statement))
 	}
@@ -99,19 +98,18 @@ func generateStatementCode(statement ast.ASTNode, declaredVars map[string]string
 func generateBlockCode(statements []ast.ASTNode, declaredVars map[string]string) string {
 	var code strings.Builder
 	for _, stmt := range statements {
+		//add tab to each statement.
 		code.WriteString(generateStatementCode(stmt, declaredVars))
 	}
 	return code.String()
 }
 
-// Regular expression code (for calculations, etc.)
 func generateExpressionCode(expression ast.ASTNode, parentPrecedence int, declaredVars map[string]string) string {
-	return generateExpressionCodeWithPrecedence(expression, parentPrecedence, false, declaredVars) // isParayu = false
+	return generateExpressionCodeWithPrecedence(expression, parentPrecedence, false, declaredVars)
 }
 
-// Expression code specifically for Parayu (handles string conversion)
 func generateExpressionCodeForParayu(expression ast.ASTNode, declaredVars map[string]string) string {
-	return generateExpressionCodeWithPrecedence(expression, 0, true, declaredVars) // isParayu = true
+	return generateExpressionCodeWithPrecedence(expression, 0, true, declaredVars)
 }
 
 func generateExpressionCodeWithPrecedence(expression ast.ASTNode, parentPrecedence int, isParayu bool, declaredVars map[string]string) string {
@@ -126,11 +124,10 @@ func generateExpressionCodeWithPrecedence(expression ast.ASTNode, parentPreceden
 	case ast.Identifier:
 		if isParayu {
 			if declaredVars[e.Name] == "string" {
-				return e.Name //already a string
+				return e.Name
 			} else {
 				return fmt.Sprintf("strconv.Itoa(%s)", e.Name)
 			}
-
 		}
 		return e.Name
 	case ast.BinaryExpression:
@@ -139,18 +136,18 @@ func generateExpressionCodeWithPrecedence(expression ast.ASTNode, parentPreceden
 		if e.Operator == "+" && isParayu {
 			leftCode := generateExpressionCodeWithPrecedence(e.Left, precedence, true, declaredVars)
 			rightCode := generateExpressionCodeWithPrecedence(e.Right, precedence, true, declaredVars)
-			return fmt.Sprintf("%s + %s", leftCode, rightCode) // No extra parens
+			return fmt.Sprintf("%s + %s", leftCode, rightCode)
 
-		} else {
+		} else { // Handle other operators (including -, *, /)
 			leftCode := generateExpressionCodeWithPrecedence(e.Left, precedence, isParayu, declaredVars)
 			rightCode := generateExpressionCodeWithPrecedence(e.Right, precedence, isParayu, declaredVars)
 
+			// Add parentheses based on precedence and associativity.
 			if precedence < parentPrecedence || (precedence == parentPrecedence && isLeftAssociative(e.Operator)) {
 				return fmt.Sprintf("(%s %s %s)", leftCode, e.Operator, rightCode)
 			}
 			return fmt.Sprintf("%s %s %s", leftCode, e.Operator, rightCode)
 		}
-
 	default:
 		panic(fmt.Sprintf("Unexpected expression type: %T", expression))
 	}
@@ -168,18 +165,16 @@ func inferType(expression ast.ASTNode, declaredVars map[string]string) string {
 		} else {
 			panic(fmt.Sprintf("Undeclared identifier %s during type inference", e.Name))
 		}
-	case ast.BinaryExpression: //Infer based on operator and operands
-		if e.Operator == "+" { //could be string or int
+	case ast.BinaryExpression: // Now handles more operators
+		if e.Operator == "+" {
 			leftType := inferType(e.Left, declaredVars)
 			rightType := inferType(e.Right, declaredVars)
 			if leftType == "string" || rightType == "string" {
-				return "string" //if either is a string it is a string operation
-			} else {
-				return "int" //assume int, but in reality need more checks.
+				return "string" // String concatenation
 			}
-		} else { // == or < assume int
-			return "int"
 		}
+		// For -, *, /, <, ==, assume int (more robust type checking is needed in a real compiler)
+		return "int"
 
 	default:
 		panic(fmt.Sprintf("Cannot infer type for expression: %T", expression))

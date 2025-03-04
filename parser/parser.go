@@ -138,23 +138,22 @@ func (p *Parser) parseForStatement() ast.ASTNode {
 }
 
 func (p *Parser) parseExpression() ast.ASTNode {
-	return p.parseComparison() // Start with higher precedence
+	return p.parseComparison()
 }
 
 func (p *Parser) parseComparison() ast.ASTNode {
-	left := p.parseTerm()
+	left := p.parseTerm() // Use parseTerm here
 	for p.peek().Type == lexer.TokOperator && (p.peek().Value == "==" || p.peek().Value == "<") {
 		operator := p.consume(lexer.TokOperator).Value
-		right := p.parseTerm()
+		right := p.parseTerm() // And here
 		left = ast.BinaryExpression{Left: left, Operator: operator, Right: right}
 	}
 	return left
 }
-
 func (p *Parser) parseTerm() ast.ASTNode {
 	left := p.parseFactor()
 
-	for p.peek().Type == lexer.TokOperator && (p.peek().Value == "+") {
+	for p.peek().Type == lexer.TokOperator && (p.peek().Value == "+" || p.peek().Value == "-") {
 		operator := p.consume(lexer.TokOperator).Value
 		right := p.parseFactor()
 		left = ast.BinaryExpression{Left: left, Operator: operator, Right: right}
@@ -163,7 +162,16 @@ func (p *Parser) parseTerm() ast.ASTNode {
 }
 
 func (p *Parser) parseFactor() ast.ASTNode {
+	left := p.parsePrimary()
+	for p.peek().Type == lexer.TokOperator && (p.peek().Value == "*" || p.peek().Value == "/") {
+		operator := p.consume(lexer.TokOperator).Value
+		right := p.parsePrimary()
+		left = ast.BinaryExpression{Left: left, Operator: operator, Right: right}
+	}
+	return left
+}
 
+func (p *Parser) parsePrimary() ast.ASTNode {
 	switch p.peek().Type {
 	case lexer.TokInteger:
 		value, _ := strconv.Atoi(p.consume(lexer.TokInteger).Value)
@@ -172,8 +180,8 @@ func (p *Parser) parseFactor() ast.ASTNode {
 		return ast.StringLiteral{Value: p.consume(lexer.TokString).Value}
 	case lexer.TokIdentifier:
 		name := p.consume(lexer.TokIdentifier).Value
-		return ast.Identifier{Name: name, Type: ""} // Initialize Type to empty string
-	case lexer.TokLParen: // Handle parenthesized expressions.
+		return ast.Identifier{Name: name, Type: ""}
+	case lexer.TokLParen:
 		p.consume(lexer.TokLParen)
 		expression := p.parseExpression()
 		p.consume(lexer.TokRParen)

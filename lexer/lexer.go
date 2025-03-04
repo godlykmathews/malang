@@ -21,7 +21,7 @@ func Lex(input string) []Token {
 		"edukk":           TokEdukk,
 	}
 
-	operators := []string{"==", "<", "=", "+"} // keep longer operators first for greedy matching.
+	operators := []string{"==", "<", "=", "+", "-", "*", "/"} // keep longer operators first
 
 	for i := 0; i < len(input); {
 		char := input[i]
@@ -51,7 +51,7 @@ func Lex(input string) []Token {
 					col++
 				}
 			}
-			if i < len(input) && input[i] == '"' { // Consume the closing quote
+			if i < len(input) && input[i] == '"' {
 				tokens = append(tokens, Token{Type: TokString, Value: input[start:i], Line: line, Col: col})
 				col += i - start + 2
 				i++

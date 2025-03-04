@@ -1,6 +1,5 @@
 package lexer
 
-// Token represents a lexical token
 type Token struct {
 	Type  string
 	Value string
@@ -29,4 +28,7 @@ const (
 	TokRange          = "RANGE"
 	TokComma          = "COMMA"
 	TokEOF            = "EOF"
+	TokMinus          = "MINUS"
+	TokMultiply       = "MULTIPLY"
+	TokDivide         = "DIVIDE"
 )
