@@ -44,7 +44,7 @@ ith_sheriyano (name == "Rohith") enkil {
     parayu("Nannayittanu! Sugamano, " + name + "?") // Greeting for everyone else.
 }
 ```
-- **ith_sheriyano (condition) enkil { ... } alle { ... }:** This is your classic if-else statement.
+- **ith_sheriyano (condition) enkil { ... } alle { ... }**: This is your classic if-else statement.
     - ith_sheriyano: Kind of like "if it is true".
     - enkil: Think of it as "then".
     - alle: This means "else".
@@ -58,7 +58,7 @@ ellam_sheriyano (ennam < 5) enkil {  // Loops as long as 'ennam' is less than 5.
     ennam = ennam + 1             // Increments 'ennam'.
 }
 ```
-- ellam_sheriyano (condition) enkil { ... }: This is your while loop.
+- **ellam_sheriyano (condition) enkil { ... }**: This is your while loop.
     - ellam_sheriyano: Roughly translates to "while everything is okay".
     - The code within the curly braces {} will repeatedly execute as long as the condition (in this case, ennam < 5) remains true.
 
@@ -69,7 +69,7 @@ oron_ayi i edukk (1..5) {       // Loops from 1 to 5 (inclusive).
 }
 ```
 
-- oron_ayi i edukk (start..end) { ... }: This is your for loop.
+- **oron_ayi i edukk (start..end) { ... }**: This is your for loop.
     - oron_ayi: Means something like "one by one".
 
     - i: The loop variable (you can choose a different name, of course).
