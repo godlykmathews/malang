@@ -15,6 +15,14 @@ It’s not just a language. It's a *concept*. A statement. A joke that spiraled 
 
 Malang is written _Manglish_, Malayalam written in English script—because why not? If you've ever wanted to write code that looks like a casual WhatsApp conversation between two Malayalis, Malang is here to enable that madness.
 
+## Learn a bit more?
+For more in-depth information on each component, see the detailed README files located in their respective directories:
+*   [Lexer (Lexical Analysis)](./lexer/readme.md)
+*   [Parser (Syntax Analysis)](./parser/readme.md)
+*   [Abstract Syntax Tree (AST)](./ast/readme.md)
+*   [Code Generator](./codegen/readme.md)
+
+
 ## Features  
 - **Manglish to Go Compilation** - Because writing Malayalam in English letters is an art.  
 - **Code Generation** - Magic! and go for the most part. 
