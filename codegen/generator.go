@@ -237,7 +237,11 @@ func expressionUsesStrconv(expression ast.ASTNode) bool {
 	case ast.IntegerLiteral:
 		return true // Integer literals within Parayu always need strconv
 	case ast.Identifier:
-		return e.Type == "int" //needs conversion if it is an int
+		// Check if we have type information, default to false if unknown
+		if e.Type == "" {
+			return false
+		}
+		return e.Type == "int" // needs conversion if it is an int
 	case ast.BinaryExpression:
 		return expressionUsesStrconv(e.Left) || expressionUsesStrconv(e.Right)
 	default:

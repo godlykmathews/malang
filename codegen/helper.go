@@ -11,18 +11,22 @@ func operatorPrecedence(operator string) int {
 		return 3
 	case "+", "-": // Addition and subtraction
 		return 2
-	case "==", "<": // Comparison
+	case "==", "<", ">", "<=", ">=", "!=": // Comparison - add missing operators
 		return 1
 	default:
-		panic(fmt.Sprintf("Unknown operator: %s", operator))
+		// Match behavior with isLeftAssociative
+		fmt.Printf("Warning: Unknown operator in precedence: %s, defaulting to lowest precedence\n", operator)
+		return 0
 	}
 }
+
 func isLeftAssociative(operator string) bool {
 	switch operator {
-	case "+", "-", "*", "/", "==", "<": //all our operators are left associative
+	case "+", "-", "*", "/", "==", "<", ">", "<=", ">=", "!=": // Add missing operators
 		return true
 	default:
-		return false //or panic if an unknown operator is encountered
+		fmt.Printf("Warning: Unknown operator in associativity check: %s, assuming left associative\n", operator)
+		return true
 	}
 }
 

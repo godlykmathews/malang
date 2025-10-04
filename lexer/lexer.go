@@ -21,7 +21,7 @@ func Lex(input string) []Token {
 		"edukk":           TokEdukk,
 	}
 
-	operators := []string{"==", "<", "=", "+", "-", "*", "/"} // keep longer operators first
+	operators := []string{"==", "!=", "<=", ">=", "<", ">", "=", "+", "-", "*", "/"} // Add missing operators and keep longer operators first
 
 	for i := 0; i < len(input); {
 		char := input[i]
@@ -53,9 +53,9 @@ func Lex(input string) []Token {
 			}
 			if i < len(input) && input[i] == '"' {
 				tokens = append(tokens, Token{Type: TokString, Value: input[start:i], Line: line, Col: col})
-				col += i - start + 2
 				i++
-
+				// Remove the duplicate column increment - it's already handled in the loop
+				// col += i - start + 2  <- Remove this line
 			} else {
 				panic(fmt.Sprintf("Unterminated string literal at line %d, col %d", line, col))
 			}
@@ -94,7 +94,19 @@ func Lex(input string) []Token {
 		matchedOperator := false
 		for _, op := range operators {
 			if strings.HasPrefix(input[i:], op) {
-				tokens = append(tokens, Token{Type: TokOperator, Value: op, Line: line, Col: col})
+				// Use specific token types based on the operator
+				tokenType := TokOperator
+				switch op {
+				case "+":
+					tokenType = TokOperator
+				case "-":
+					tokenType = TokMinus
+				case "*":
+					tokenType = TokMultiply
+				case "/":
+					tokenType = TokDivide
+				}
+				tokens = append(tokens, Token{Type: tokenType, Value: op, Line: line, Col: col})
 				i += len(op)
 				col += len(op)
 				matchedOperator = true

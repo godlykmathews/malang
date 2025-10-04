@@ -143,7 +143,10 @@ func (p *Parser) parseExpression() ast.ASTNode {
 
 func (p *Parser) parseComparison() ast.ASTNode {
 	left := p.parseTerm() // Use parseTerm here
-	for p.peek().Type == lexer.TokOperator && (p.peek().Value == "==" || p.peek().Value == "<") {
+	for p.peek().Type == lexer.TokOperator &&
+		(p.peek().Value == "==" || p.peek().Value == "<" ||
+			p.peek().Value == ">" || p.peek().Value == "<=" ||
+			p.peek().Value == ">=" || p.peek().Value == "!=") {
 		operator := p.consume(lexer.TokOperator).Value
 		right := p.parseTerm() // And here
 		left = ast.BinaryExpression{Left: left, Operator: operator, Right: right}
